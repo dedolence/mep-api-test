@@ -5,14 +5,17 @@
  */ 
 const express = require('express');
 const path = require('path');
-const jsdom = require('jsdom');
+const htmlparser2 = require('htmlparser2');
+const https = require('https');
+const http = require('http');
 
 /*
  *  Instances
  */ 
 const app  = express();
 const port = process.env.PORT || 4000;
-const recipe = {};
+// recipe object, R for short
+const R = {};
 var parser = {};
 const parsers = {
     allrecipes: require(path.join(__dirname + '/parsers/allRecipes.js'))
@@ -29,37 +32,59 @@ app.get('/', function(req, res) {
  *  Set up middleware for parsing response to initial form
  */
 
-// assign a parser according to the host
+// assign basic properties to the Recipe object
 app.use('/api', function(req, res, next) {
 
     // get the url of the recipe that we want to parse
-    recipe.url = req.query.url;
+    R.url = req.query.url;
     
     // set the parser based on the host
-    let host = new URL(recipe.url).hostname.split('.').filter(v => v.indexOf('www') == -1)[0];
-    parser = parsers[host];
+    R.host = new URL(R.url).hostname.split('.').filter(v => v.indexOf('www') == -1)[0];
+    parser = parsers[R.host];
     
     // catch error if a parser can't be found
     if (parser === undefined) {
         res.status(404).send("Couldn't find a parser for that recipe.");
+    } else {
+        next();
     }
 
-    next();
 });
 
-// create a DOM object to parse with
-app.use('/api', function(req, res, next){
-
-    jsdom.JSDOM.fromURL(recipe.url).then(dom => {
-        recipe.dom = dom.window;
-        next();
-    });
-
-});
-
-// send DOM for parsing
+// get raw recipe data from server
 app.use('/api', function(req, res, next) {
-    console.log(recipe.dom.window);
+    
+    let data = '';
+
+    switch(R.url.charAt(4)) {
+        case 's':
+            // use https
+            const request = https.get(R.url, response => {
+                response.on('data', d => {
+                    data += d.toString();
+                })
+                response.on('end', () => {
+                    next();
+                })
+
+            });
+
+            request.on('error', e => {
+                console.error(e);
+                // handle errors
+            });
+
+            request.end();
+            break;
+
+        case ':':
+            // use http
+            // TODO: implement http
+            break;
+        default:
+            // maybe not a good URL
+            return;
+    }
 });
 
 // create server
