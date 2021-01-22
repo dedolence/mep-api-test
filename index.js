@@ -14,10 +14,10 @@ const http = require('http');
  */ 
 const app  = express();
 const port = process.env.PORT || 4000;
-// recipe object, R for short
-const R = {};
-var parser = {};
+const R = { /* This is the main recipe object */ };
+var parser = { /* This is the parser used for extracting the recipe information from raw HTML */ };
 const parsers = {
+    // add new parsers here. make sure the key is exactly as it appears in the URL of the recipe
     allrecipes: require(path.join(__dirname + '/parsers/allRecipes.js'))
 };
 
@@ -37,13 +37,17 @@ app.use('/api', function(req, res, next) {
 
     // get the url of the recipe that we want to parse
     R.url = req.query.url;
+    R.host = new URL(R.url).hostname.split('.').filter(v => v.indexOf('www') == -1)[0];
+
+    // set the server request method
+    R.http = R.url.charAt(4) == 's' ? https : http;
     
     // set the parser based on the host
-    R.host = new URL(R.url).hostname.split('.').filter(v => v.indexOf('www') == -1)[0];
-    parser = parsers[R.host];
+    R.parser = parsers[R.host];
     
     // catch error if a parser can't be found
     if (parser === undefined) {
+        console.error("Couldn't find a parser for that recipe.");
         res.status(404).send("Couldn't find a parser for that recipe.");
     } else {
         next();
@@ -53,39 +57,41 @@ app.use('/api', function(req, res, next) {
 
 // get raw recipe data from server
 app.use('/api', function(req, res, next) {
-    
+
     let data = '';
 
-    switch(R.url.charAt(4)) {
-        case 's':
-            // use https
-            const request = https.get(R.url, response => {
-                response.on('data', d => {
-                    data += d.toString();
-                })
-                response.on('end', () => {
-                    next();
-                })
-
+    if (R.http == undefined) {
+        console.error("HTTP method not set");
+        res.status(404).send("HTTP method not set.");
+    }
+    else {
+        // use https
+        const request = R.http.get(R.url, response => {
+            response.on('data', d => {
+                data += d.toString();
             });
-
-            request.on('error', e => {
-                console.error(e);
-                // handle errors
+            response.on('end', () => {
+                R.html = data;
+                next();
             });
+        });
 
-            request.end();
-            break;
+        request.on('error', e => {
+            console.error(e);
+            // handle errors
+        });
 
-        case ':':
-            // use http
-            // TODO: implement http
-            break;
-        default:
-            // maybe not a good URL
-            return;
+        // maybe not necessary: http.get() ends automatically, but unclear if https.get() does as well
+        request.end();
     }
 });
+
+// parse the raw HTML
+app.use('/api', function(req, res, next) {
+    R.dom = htmlparser2.parseDocument(R.html);
+    console.log(R.dom);
+    res.end();
+})
 
 // create server
 app.listen(port, function () {
