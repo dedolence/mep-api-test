@@ -1,5 +1,5 @@
 "use strict";
-// EAT MY ASS GIT
+
 /*
  *  Dependencies
  */ 
@@ -89,7 +89,8 @@ app.use('/api', function(req, res, next) {
 // parse the raw HTML
 app.use('/api', function(req, res, next) {
     R.dom = htmlparser2.parseDocument(R.html);
-    console.log(R.dom);
+    // log the html
+    console.log(R.parser.parse(R));
     res.end();
 })
 
