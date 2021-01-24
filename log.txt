@@ -1,0 +1,8 @@
+1/24
+
+To access the recipe ingredients via the dom after parsing with htmlparser2 would require hugely nested children.
+
+Not a problem I guess.
+
+But i'm thinking, if i'm going to just create a querySelectorAll that hunts down classes or text content that matches
+the tags i'm looking for, why not just hunt for those during the parsing, instead of parsing, creating a dom, then traversing.

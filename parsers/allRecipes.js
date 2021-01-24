@@ -12,6 +12,24 @@
 
 const htmlparser2 = require('htmlparser2');
 
+function printInfo(element) {
+    console.log('{');
+    console.log(`   Name: ${element.name}`);
+    console.log(`   Type: ${element.type}`);
+    console.log(`   Attributes: `);
+    if (element.attribs != undefined) {
+        console.log('   {');
+        for (let a in element.attribs) {
+            console.log(`       ${a}: ${element.attribs[a]},`);
+        }
+        console.log('   }')
+    } else {
+        console.log(`       none`);
+    }
+    console.log('}')
+    console.log('-----------------------------------------');
+}
+
 exports.parse = function(recipe) {
     // make sure the dom exists
     if (!recipe.dom) throw "Error: DOM property undefined.";
@@ -21,12 +39,20 @@ exports.parse = function(recipe) {
 
             let e0 = recipe.dom.children[i];
             if (e0.name == 'html') {
-            
+                console.log(e0.name, e0.type, e0.attribs);
+
                 for (let j = 0; j < e0.children.length; j++) {
 
                     let e1 = e0.children[j];
                     if (e1.name == 'body') {
-                        console.log(e1);
+                        console.log(e1.name, e1.type, e1.attribs);
+
+                        for (let i = 0; i < e1.children.length; i++) {
+                            if (e1.children[i].name != undefined && e1.children[i].attribs != undefined) {
+                                printInfo(e1.children[i]);
+                            }
+                        }
+
                         break;
                     }
                 }

@@ -90,7 +90,7 @@ app.use('/api', function(req, res, next) {
 app.use('/api', function(req, res, next) {
     R.dom = htmlparser2.parseDocument(R.html);
     // log the html
-    console.log(R.parser.parse(R));
+    R.parser.parse(R);
     res.end();
 })
 
