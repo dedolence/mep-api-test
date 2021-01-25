@@ -57,7 +57,7 @@ app.use('/api', function(req, res, next) {
 
 // get raw recipe data from server
 app.use('/api', function(req, res, next) {
-
+    // TODO: make server request a recipe method?
     let data = '';
 
     if (R.http == undefined) {
@@ -88,7 +88,6 @@ app.use('/api', function(req, res, next) {
 
 // parse the raw HTML
 app.use('/api', function(req, res, next) {
-    R.dom = htmlparser2.parseDocument(R.html);
     // log the html
     R.parser.parse(R);
     res.end();
