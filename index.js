@@ -5,7 +5,6 @@
  */ 
 const express = require('express');
 const path = require('path');
-const htmlparser2 = require('htmlparser2');
 const https = require('https');
 const http = require('http');
 
@@ -88,9 +87,7 @@ app.use('/api', function(req, res, next) {
 
 // parse the raw HTML
 app.use('/api', function(req, res, next) {
-    R.dom = htmlparser2.parseDocument(R.html);
-    // log the html
-    R.parser.parse(R);
+    R.parser.parse(R.html);
     res.end();
 })
 

@@ -30,34 +30,28 @@ function printInfo(element) {
     console.log('-----------------------------------------');
 }
 
-exports.parse = function(recipe) {
+exports.parse = function(html) {
     // make sure the dom exists
-    if (!recipe.dom) throw "Error: DOM property undefined.";
+    if (!html) throw "Error: no input HTML.";
     else {
-        //const body = recipe.dom.children[4].children[3];
-        for (let i = 0; i < recipe.dom.children.length; i++) {
+        // remove newlines
+        html.replace(/\r?\n|\r/g, "");
 
-            let e0 = recipe.dom.children[i];
-            if (e0.name == 'html') {
-                console.log(e0.name, e0.type, e0.attribs);
+        // this is the landmark tag. not exactly what we're looking for but it marks the approximate area to begin searching
+        let l = `<ul class="ingredients-section" data-tracking-label="ingredients section">`;
+        // index of where that tag appears
+        let i = html.search(l);
 
-                for (let j = 0; j < e0.children.length; j++) {
-
-                    let e1 = e0.children[j];
-                    if (e1.name == 'body') {
-                        console.log(e1.name, e1.type, e1.attribs);
-
-                        for (let i = 0; i < e1.children.length; i++) {
-                            if (e1.children[i].name != undefined && e1.children[i].attribs != undefined) {
-                                printInfo(e1.children[i]);
-                            }
-                        }
-
-                        break;
-                    }
-                }
-                break;
+        let d = '';                 // a chunk of data we'll extract
+        let tagOpen = false;        // for tracking when tags are open/closed
+        let tag = '';
+        for (i; i < html.length; i++) {
+            d += html[i];
+            if (html[i] == '<') {
+                tagOpen = true;
+                tag += html[i];
             }
+            else if (html[i]) {}
         }
     }
 }

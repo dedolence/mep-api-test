@@ -6,3 +6,6 @@ Not a problem I guess.
 
 But i'm thinking, if i'm going to just create a querySelectorAll that hunts down classes or text content that matches
 the tags i'm looking for, why not just hunt for those during the parsing, instead of parsing, creating a dom, then traversing.
+
+htmlparser2 offers no way to capture the tag as it's being parsed........... what the fuck. i finally decide to try to use a library
+to make things easier for me and all of them are garbage and i'm going to end up just writing my own.
