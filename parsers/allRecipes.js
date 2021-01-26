@@ -30,6 +30,76 @@ function printInfo(element) {
     console.log('-----------------------------------------');
 }
 
+exports.parse = function(recipe) {
+    if (!recipe.dom) throw "Error: DOM property undefined.";
+    else {
+        let _body = _findHtmlElement(['name', 'body'], recipe.dom, true, 1)[0];
+        let _ingredients = _findClass('ingredients-section', _body);
+        console.log(_ingredients);
+    }
+}
+
+function _findClass(className, node) {
+    let _c = className;
+    let _n = node;
+    
+    let _results = [];
+
+    // check to see if node has attributes
+    if (_n.attribs && _n.attribs.class) {
+        if (_n.attribs.class.split(" ").includes(_c)) {
+            _results.push(_n);
+        }
+    }
+
+    // check children
+    if (_n.children) {
+        for (let _i = 0; _i < _n.children.length; _i++) {
+            let _children = _findClass(className, _n.children[_i]);
+            _results.push.apply(_results, _children);
+        }
+    }
+
+    return _results;
+}
+// rewrote the DomUtils find function to handle searching objects for properties
+// and their children as arrays.
+// search through all properties of this node to find a name
+// return it if it matches the search term, search children
+function _findHtmlElement(searchProp, node, recurse, limit) {
+    var _k = searchProp[0];
+    var _v = searchProp[1];
+    var _node = node;
+    
+    var result = [];
+
+    // iterate through each property of _node object
+    for (let prop in _node) {
+        // see if the key and value matches this property
+        if (prop == _k && _node[prop] == _v) {
+
+            // store the entire node in results
+            result.push(_node);
+
+            // make sure limit hasn't been reached
+            if (--limit <= 0)
+                break;
+        }
+
+        // check children
+        if (recurse && prop == 'children') {
+            for (let _i = 0; _i < _node.children.length; _i++) {
+                let children = _findHtmlElement(searchProp, _node.children[_i], recurse, limit);
+                result.push.apply(result, children);
+                limit -= children.length;
+                if (limit <= 0)
+                    break;
+            }
+        }
+    }
+    return result;
+}
+/* Mine the depths of the DOM looking for gold
 
 exports.parse = function(recipe) {
     // make sure the dom exists
@@ -62,3 +132,4 @@ exports.parse = function(recipe) {
         }
     }
 }
+*/
