@@ -36,8 +36,8 @@ function printInfo(element) {
 exports.parse = function(recipe) {
     if (!recipe.dom) throw "Error: DOM property undefined.";
     else {
-        let _ingredients = _getIngredients(recipe.dom);
-        console.log(_ingredients);
+        recipe._ingredients = _getIngredients(recipe.dom);
+        console.log(recipe._ingredients);
     }
 }
 
