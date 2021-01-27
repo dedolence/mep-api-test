@@ -5,15 +5,57 @@
  *       'originalUrl': 'string',
  *       'servings': 'string', 
  *       'description': 'string',
- *       'ingredients': [],
+ *       'ingredients': [
+ *              {
+ *                  'quantity': '',
+ *                  'unit': '',
+ *                  'name': ''
+ *              }
+ *          ],
  *       'steps': [],
  *   }
  */
 
 const htmlparser2 = require('htmlparser2');
+
+// class selectors for extracting data
 const _classKeys = {
     ingredients: 'ingredients-item-name'
 }
+
+// TODO: make a require()
+// keep these lowercase and singular (no trailing 's')
+const _units = [
+    'teaspoon',
+    'tablespoon',
+    'tsp',
+    'tbs',
+    'tb',
+    'tbl',
+    'tbsp',
+    't',
+    'cup',
+    'pint',
+    'pt',
+    'quart',
+    'q',
+    'gallon',
+    'milliliter',
+    'ml',
+    'liter',
+    'l',
+    'pound',
+    'lb',
+    'ounce',
+    'oz',
+    'milligram',
+    'mg',
+    'gram',
+    'g',
+    'kilogram',
+    'kg',
+    'kilo'
+]
 
 function printInfo(element) {
     console.log('{');
@@ -36,39 +78,47 @@ function printInfo(element) {
 exports.parse = function(recipe) {
     if (!recipe.dom) throw "Error: DOM property undefined.";
     else {
-        recipe._ingredients = _getIngredients(recipe.dom);
-        console.log(recipe._ingredients);
+        recipe.ingredients = _getIngredients(recipe.dom);
+        console.log(recipe.ingredients)
     }
 }
 
-function _getIngredients(node) {
-    let _className = _classKeys.ingredients;
-    
+// TODO: figure out why symbols like ½ and punctuation aren't being included
+function _getIngredients(node) {    
     // array of strings representing ingredients
-    let _ingredients = _findClass(_className, node)
+    return _findClass(_classKeys.ingredients, node)
         .map(_i => _i.children[0].data.trim())  // remove newlines and whitespace
         .map(_i => {
             // extract quantity; i'm sure there's a pithy one-liner that could do this, oh well
             let _a = _i.split(/\W/);
-            let _b = []
+            let _b = {}
             if (!isNaN(_a[0])) {
-                _b[0] = _a[0];
+                _b.quantity = _a[0];
                 _a.shift();
             }
-            _b.push(_a.join(' '));
+            _b.name = _a.join(' ');
             return _b;
+        })
+        .map(_i => {
+            // extract unit of measurement
+            let _a = _i.name.split(' ');
+            let _u = _a.shift().toString().toLowerCase();
+            if (_units.includes(_u) || _units.includes(_u.slice(0, -1))) {
+                _i.unit = _u;
+                _i.name = _a.join(' ');
+            }
+            return _i;
         });
-
-    return _ingredients;
 }
 
+// TODO: add this to a generic library, make pull request
 function _findClass(className, node) {
     let _c = className;
     let _n = node;
     
     let _results = [];
 
-    // check to see if node has attributes
+    // check to see if node has attributes/class attribute
     if (_n.attribs && _n.attribs.class) {
         if (_n.attribs.class.split(" ").includes(_c)) {
             _results.push(_n);
@@ -85,6 +135,8 @@ function _findClass(className, node) {
 
     return _results;
 }
+
+
 // rewrote the DomUtils find function to handle searching objects for properties
 // and their children as arrays.
 // search through all properties of this node to find a name
