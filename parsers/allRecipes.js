@@ -11,6 +11,9 @@
  */
 
 const htmlparser2 = require('htmlparser2');
+const _classKeys = {
+    ingredients: 'ingredients-item-name'
+}
 
 function printInfo(element) {
     console.log('{');
@@ -33,10 +36,30 @@ function printInfo(element) {
 exports.parse = function(recipe) {
     if (!recipe.dom) throw "Error: DOM property undefined.";
     else {
-        let _body = _findHtmlElement(['name', 'body'], recipe.dom, true, 1)[0];
-        let _ingredients = _findClass('ingredients-section', _body);
+        let _ingredients = _getIngredients(recipe.dom);
         console.log(_ingredients);
     }
+}
+
+function _getIngredients(node) {
+    let _className = _classKeys.ingredients;
+    
+    // array of strings representing ingredients
+    let _ingredients = _findClass(_className, node)
+        .map(_i => _i.children[0].data.trim())  // remove newlines and whitespace
+        .map(_i => {
+            // extract quantity; i'm sure there's a pithy one-liner that could do this, oh well
+            let _a = _i.split(/\W/);
+            let _b = []
+            if (!isNaN(_a[0])) {
+                _b[0] = _a[0];
+                _a.shift();
+            }
+            _b.push(_a.join(' '));
+            return _b;
+        });
+
+    return _ingredients;
 }
 
 function _findClass(className, node) {
