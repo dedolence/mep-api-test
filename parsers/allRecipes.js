@@ -80,17 +80,27 @@ function printInfo(element) {
 exports.parse = function(recipe) {
     if (!recipe.dom) throw "Error: DOM property undefined.";
     else {
+        recipe.title = _getTitle(recipe.dom);
+        console.log(recipe.title);
         recipe.ingredients = _getIngredients(recipe.dom);
-        console.log(recipe.ingredients)
     }
 }
 
-function _getIngredients1(node) {
-    let _a = _findClass(_classKeys.ingredients, node);
-    for (let _i of _a) {
-        console.log(htmlparser2.DomUtils.getText(_i));
+function _getTitle(node) {
+    let _e = _findHtmlElement(['name', 'title'], node, true, 1)[0]
+        .children[0]
+        .data;
+
+    // filter helper
+    let _rList = ["recipe", "|", "allrecipes"];
+    let _rFilter = function(_w) {
+        return !_rList.includes(_w.toLowerCase());
     }
-    return true;
+
+    // split string, filter out irrelevant title decoration, reformat to string
+    return _e.split(/\s+/)
+        .filter(_rFilter)
+        .join(' ');
 }
 
 function _getIngredients(node) {
@@ -124,10 +134,15 @@ function _getIngredients(node) {
 }
 
 // TODO: add this to a generic library, make pull request
+/**
+ * 
+ * @param {string} className name of the class, without CSS selectors (i.e. no '.')
+ * @param {HTMLElement} node parent object to search within
+ * @returns {Array<HTMLElement>} array of matching objects
+ */
 function _findClass(className, node) {
     let _c = className;
     let _n = node;
-    
     let _results = [];
 
     // check to see if node has attributes/class attribute
@@ -149,24 +164,31 @@ function _findClass(className, node) {
 }
 
 
-// rewrote the DomUtils find function to handle searching objects for properties
-// and their children as arrays.
-// search through all properties of this node to find a name
-// return it if it matches the search term, search children
+/** 
+ * rewrote the DomUtils find() function to handle searching objects,
+ * not just arrays.
+ * 
+ * @param {Array<string>} searchProp an array containing a key (_k) and value (_v)
+ * @param {HTMLElement} node the parent node as an HTMLElement to search within
+ * @param {boolean} recurse boolean whether to search children as well
+ * @param {number} limit integer number of results to return
+ * 
+ * @return {Array<HTMLElement>} an array containing matching HTMLElement objects.
+ */
 function _findHtmlElement(searchProp, node, recurse, limit) {
     var _k = searchProp[0];
     var _v = searchProp[1];
     var _node = node;
     
-    var result = [];
+    var _result = [];
 
     // iterate through each property of _node object
-    for (let prop in _node) {
+    for (let _prop in _node) {
         // see if the key and value matches this property
-        if (prop == _k && _node[prop] == _v) {
+        if (_prop == _k && _node[_prop] == _v) {
 
             // store the entire node in results
-            result.push(_node);
+            _result.push(_node);
 
             // make sure limit hasn't been reached
             if (--limit <= 0)
@@ -174,49 +196,15 @@ function _findHtmlElement(searchProp, node, recurse, limit) {
         }
 
         // check children
-        if (recurse && prop == 'children') {
+        if (recurse && _prop == 'children') {
             for (let _i = 0; _i < _node.children.length; _i++) {
                 let children = _findHtmlElement(searchProp, _node.children[_i], recurse, limit);
-                result.push.apply(result, children);
+                _result.push.apply(_result, children);
                 limit -= children.length;
                 if (limit <= 0)
                     break;
             }
         }
     }
-    return result;
+    return _result;
 }
-/* Mine the depths of the DOM looking for gold
-
-exports.parse = function(recipe) {
-    // make sure the dom exists
-    if (!recipe.dom) throw "Error: DOM property undefined.";
-    else {
-        //const body = recipe.dom.children[4].children[3];
-        for (let i = 0; i < recipe.dom.children.length; i++) {
-
-            let e0 = recipe.dom.children[i];
-            if (e0.name == 'html') {
-                console.log(e0.name, e0.type, e0.attribs);
-
-                for (let j = 0; j < e0.children.length; j++) {
-
-                    let e1 = e0.children[j];
-                    if (e1.name == 'body') {
-                        console.log(e1.name, e1.type, e1.attribs);
-
-                        for (let i = 0; i < e1.children.length; i++) {
-                            if (e1.children[i].name != undefined && e1.children[i].attribs != undefined) {
-                                printInfo(e1.children[i]);
-                            }
-                        }
-
-                        break;
-                    }
-                }
-                break;
-            }
-        }
-    }
-}
-*/

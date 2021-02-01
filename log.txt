@@ -6,3 +6,9 @@ Not a problem I guess.
 
 But i'm thinking, if i'm going to just create a querySelectorAll that hunts down classes or text content that matches
 the tags i'm looking for, why not just hunt for those during the parsing, instead of parsing, creating a dom, then traversing.
+
+2/1
+    wondering if there's any way to generalize these functions, but i don't think so. for instance, just extracting
+    the <title> tag isn't so difficult (i have a generalized function for extracting specific tags from the DOM),
+    but Allrecipes, for example, appends "Recipe | Allrecipes" to the end of their titles, so that requires a
+    little extra formatting. so basically there's no real way around it if i want to produce clean results.
