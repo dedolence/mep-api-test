@@ -12,3 +12,7 @@ the tags i'm looking for, why not just hunt for those during the parsing, instea
     the <title> tag isn't so difficult (i have a generalized function for extracting specific tags from the DOM),
     but Allrecipes, for example, appends "Recipe | Allrecipes" to the end of their titles, so that requires a
     little extra formatting. so basically there's no real way around it if i want to produce clean results.
+
+    ok but there's definitely a JSON object in the <head> that contains every bit of information i need, would
+    require almost no parsing whatsoever, just JSON.parse()... what the fuck how am i just now realizing this.
+    whatever.

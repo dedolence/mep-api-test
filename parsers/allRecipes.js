@@ -163,7 +163,6 @@ function _findClass(className, node) {
     return _results;
 }
 
-
 /** 
  * rewrote the DomUtils find() function to handle searching objects,
  * not just arrays.
