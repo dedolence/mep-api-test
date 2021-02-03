@@ -59,33 +59,18 @@ const _Units = [
 
 const _Fractions = {'¼': '1/4', '½': '1/2', '¾': '3/4', '⅓': '1/2', '⅔': '2/3'};
 
-function printInfo(element) {
-    console.log('{');
-    console.log(`   Name: ${element.name}`);
-    console.log(`   Type: ${element.type}`);
-    console.log(`   Attributes: `);
-    if (element.attribs != undefined) {
-        console.log('   {');
-        for (let a in element.attribs) {
-            console.log(`       ${a}: ${element.attribs[a]},`);
-        }
-        console.log('   }')
-    } else {
-        console.log(`       none`);
-    }
-    console.log('}')
-    console.log('-----------------------------------------');
-}
-
 exports.parse = function(recipe) {
     if (!recipe.dom) throw "Error: DOM property undefined.";
     else {
         let _meta = _getMeta(recipe.dom);
+        recipe.name = _meta[1].name;
+        recipe.author = _meta[1].author[0].name;
+        recipe.yield = _meta[1].recipeYield;
+        recipe.description = _meta[1].description;
         recipe.ingredients = _getIngredients(_meta[1].recipeIngredient);
-        console.log(recipe.ingredients);
+        recipe.steps = _getSteps(_meta[1].recipeInstructions);
     }
 }
-
 
 function _getMeta(_node) {
     let _head = _findHtmlElement(['name', 'head'], _node, true, 1)[0];
@@ -94,7 +79,6 @@ function _getMeta(_node) {
 
     return JSON.parse(_mData);
 }
-
 
 function _findAttribute(key, value, node) {
     let _k = key;
@@ -147,113 +131,8 @@ function _getIngredients(ingredientsArray) {
     });
 }
 
-function _getIngredients1(node) {
-    // array of strings representing ingredients
-    return _findClass(_classKeys.ingredients, node)
-        .map(_i => _i.children[0].data.trim())  // remove newlines and whitespace
-        .map(_i => {
-            // extract quantity; i'm sure there's a pithy one-liner that could do this, oh well
-            let _a = _i.split(/\s+/);
-            let _b = {}
-            if (!isNaN(_a[0]) || _Fractions[_a[0]]) {
-                _b.quantity = _a.shift();
-            }
-            // TODO: clean up this conversion of fraction symbol to plain numeric
-            if (_Fractions[_b.quantity]) {
-                _b.quantity = _Fractions[_b.quantity];
-            }
-            _b.name = _a.join(' ');
-            return _b;
-        })
-        .map(_i => {
-            // extract unit of measurement. the slice is to account for plural 's', e.g. teaspoons
-            let _a = _i.name.split(/\s+/);
-            let _u = _a.shift().toString().toLowerCase();
-            if (_Units.includes(_u) || _Units.includes(_u.slice(0, -1))) {
-                _i.unit = _u;
-                _i.name = _a.join(' ');
-            }
-            return _i;
-        });
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function _getTitle(node) {
-    let _e = _findHtmlElement(['name', 'title'], node, true, 1)[0]
-        .children[0]
-        .data;
-
-    // filter helper
-    let _rList = ["recipe", "|", "allrecipes"];
-    let _rFilter = function(_w) {
-        return !_rList.includes(_w.toLowerCase());
-    }
-
-    // split string, filter out irrelevant title decoration, reformat to string
-    return _e.split(/\s+/)
-        .filter(_rFilter)
-        .join(' ');
-}
-
-// TODO: add this to a generic library, make pull request
-/**
- * 
- * @param {string} className name of the class, without CSS selectors (i.e. no '.')
- * @param {HTMLElement} node parent object to search within
- * @returns {Array<HTMLElement>} array of matching objects
- */
-function _findClass(className, node) {
-    let _c = className;
-    let _n = node;
-    let _results = [];
-
-    // check to see if node has attributes/class attribute
-    if (_n.attribs && _n.attribs.class) {
-        if (_n.attribs.class.split(" ").includes(_c)) {
-            _results.push(_n);
-        }
-    }
-
-    // check children
-    if (_n.children) {
-        for (let _i = 0; _i < _n.children.length; _i++) {
-            let _children = _findClass(className, _n.children[_i]);
-            _results.push.apply(_results, _children);
-        }
-    }
-
-    return _results;
+function _getSteps(stepsArray) {
+    return stepsArray.map(_i => _i.text);
 }
 
 /** 
