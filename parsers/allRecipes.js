@@ -1,64 +1,12 @@
-/* take a JSDOM object and return a JSON object containing only the relevant items
- *   {
- *       'name': 'string',
- *       'author': 'string',
- *       'originalUrl': 'string',
- *       'servings': 'string', 
- *       'description': 'string',
- *       'ingredients': [
- *              {
- *                  'quantity': '',
- *                  'unit': '',
- *                  'name': ''
- *              }
- *          ],
- *       'steps': [],
- *   }
- */
-
+const path = require('path');
 const htmlparser2 = require('htmlparser2');
+const Values = require(path.join(__dirname + '/values.js'));
 
-// class selectors for extracting data
-const _classKeys = {
-    ingredients: 'ingredients-item-name'
-}
-
-// TODO: make a require()
-// keep these lowercase and singular (no trailing 's')
-const _Units = [
-    'teaspoon',
-    'tablespoon',
-    'tsp',
-    'tbs',
-    'tb',
-    'tbl',
-    'tbsp',
-    't',
-    'cup',
-    'pint',
-    'pt',
-    'quart',
-    'q',
-    'gallon',
-    'milliliter',
-    'ml',
-    'liter',
-    'l',
-    'pound',
-    'lb',
-    'ounce',
-    'oz',
-    'milligram',
-    'mg',
-    'gram',
-    'g',
-    'kilogram',
-    'kg',
-    'kilo'
-]
-
-const _Fractions = {'¼': '1/4', '½': '1/2', '¾': '3/4', '⅓': '1/2', '⅔': '2/3'};
-
+/**
+ * 
+ * @param {HTMLElement} recipe object created by HTMLParser2
+ * @returns {null}  null no return object 
+ */
 exports.parse = function(recipe) {
     if (!recipe.dom) throw "Error: DOM property undefined.";
     else {
@@ -72,6 +20,13 @@ exports.parse = function(recipe) {
     }
 }
 
+/**
+ * 
+ * @param {HTMLElement} node parent node to search within
+ * @returns {JSON} object that includes all the relevant recipe information.
+ * luckily AllRecipes conveniently packages this into a data object that makes
+ * it really easy to extract.
+ */
 function _getMeta(node) {
     let _head = _findHtmlElement(['name', 'head'], node, true, 1)[0];
     let _m = _findAttribute('type', 'application/ld+json', _head);
@@ -109,12 +64,12 @@ function _getIngredients(ingredientsArray) {
         // extract quantity; i'm sure there's a pithy one-liner that could do this, oh well
         let _a = _i.split(/\s+/);
         let _b = {}
-        if (!isNaN(_a[0]) || _Fractions[_a[0]]) {
+        if (!isNaN(_a[0]) || Values.Fractions[_a[0]]) {
             _b.quantity = _a.shift();
         }
-        // TODO: clean up this conversion of fraction symbol to plain numeric
-        if (_Fractions[_b.quantity]) {
-            _b.quantity = _Fractions[_b.quantity];
+        // convert fraction symbols to integer n/n
+        if (Values.Fractions[_b.quantity]) {
+            _b.quantity = Values.Fractions[_b.quantity];
         }
         _b.name = _a.join(' ');
         return _b;
@@ -123,7 +78,7 @@ function _getIngredients(ingredientsArray) {
         // extract unit of measurement. the slice is to account for plural 's', e.g. teaspoons
         let _a = _i.name.split(/\s+/);
         let _u = _a.shift().toString().toLowerCase();
-        if (_Units.includes(_u) || _Units.includes(_u.slice(0, -1))) {
+        if (Values.Units.includes(_u) || Values.Units.includes(_u.slice(0, -1))) {
             _i.unit = _u;
             _i.name = _a.join(' ');
         }
