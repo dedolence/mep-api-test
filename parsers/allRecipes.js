@@ -72,8 +72,8 @@ exports.parse = function(recipe) {
     }
 }
 
-function _getMeta(_node) {
-    let _head = _findHtmlElement(['name', 'head'], _node, true, 1)[0];
+function _getMeta(node) {
+    let _head = _findHtmlElement(['name', 'head'], node, true, 1)[0];
     let _m = _findAttribute('type', 'application/ld+json', _head);
     let _mData = _m[0].children[0].data;
 
@@ -153,7 +153,6 @@ function _findHtmlElement(searchProp, node, recurse, limit) {
     
     var _result = [];
 
-    // iterate through each property of _node object
     for (let _prop in _node) {
 
         if (_prop == _k && _node[_prop] == _v) {
