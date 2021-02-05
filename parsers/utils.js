@@ -64,3 +64,36 @@ function findHtmlElement(searchProp, node, recurse, limit) {
     return _result;
 }
 exports.findHtmlElement = findHtmlElement;
+
+/**
+ * For development/debugging.
+ * @param {HTMLElement} element 
+ */
+function printInfo(element) {
+    console.log('{');
+    console.log(`   Name: ${element.name}`);
+    console.log(`   Type: ${element.type}`);
+    console.log(`   Attributes: `);
+    if (element.attribs != undefined) {
+        console.log('   {');
+        for (let a in element.attribs) {
+            console.log(`       ${a}: ${element.attribs[a]},`);
+        }
+        console.log('   }')
+    } else {
+        console.log(`       none`);
+    }
+    console.log(`   Children: `);
+    if (element.children != undefined) {
+        console.log(`   {`);
+        for (let _i = 0; _i < element.children.length; _i++) {
+            console.log(`       { Name: ${element.children[_i].name}, Type: ${element.children[_i].type} }`);
+        }
+        console.log(`   }`);
+    } else {
+        console.log(`       none`);
+    }
+    console.log('}')
+    console.log('-----------------------------------------');
+}
+exports.printInfo = printInfo;
