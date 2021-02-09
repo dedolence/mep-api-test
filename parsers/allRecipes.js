@@ -38,30 +38,18 @@ function _getMeta(node) {
 
 
 function _getIngredients(ingredientsArray) {
-    return ingredientsArray.map(_i => {
-        // extract quantity; i'm sure there's a pithy one-liner that could do this, oh well
-        let _a = _i.split(/\s+/);
-        let _b = {}
-        if (!isNaN(_a[0]) || Values.Fractions[_a[0]]) {
-            _b.quantity = _a.shift();
-        }
-        // convert fraction symbols to integer n/n
-        if (Values.Fractions[_b.quantity]) {
-            _b.quantity = Values.Fractions[_b.quantity];
-        }
-        _b.name = _a.join(' ');
-        return _b;
-    })
-    .map(_i => {
-        // extract unit of measurement. the slice is to account for plural 's', e.g. teaspoons
-        let _a = _i.name.split(/\s+/);
-        let _u = _a.shift().toString().toLowerCase();
-        if (Values.Units.includes(_u) || Values.Units.includes(_u.slice(0, -1))) {
-            _i.unit = _u;
-            _i.name = _a.join(' ');
-        }
-        return _i;
-    });
+    return ingredientsArray
+        .map(_i => utils.convertFractions(_i))
+        .map(_i => {
+            // extract unit of measurement. the slice is to account for plural 's', e.g. teaspoons
+            let _a = _i.name.split(/\s+/);
+            let _u = _a.shift().toString().toLowerCase();
+            if (Values.Units.includes(_u) || Values.Units.includes(_u.slice(0, -1))) {
+                _i.unit = _u;
+                _i.name = _a.join(' ');
+            }
+            return _i;
+        });
 }
 
 function _getSteps(stepsArray) {

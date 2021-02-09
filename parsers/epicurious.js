@@ -1,9 +1,10 @@
 const path = require('path');
-const htmlparser2 = require('htmlparser2');
-const { inflate } = require('zlib');
-const Values = require(path.join(__dirname + '/values.js'));
+const { printInfo } = require('./utils');
 const utils = require(path.join(__dirname + '/utils.js'));
 
+const print = utils.printInfo;
+const findAttribute = utils.findAttribute;
+const findHtmlElement = utils.findHtmlElement;
 /**
  * Epicurious contains a data object that contains all the information but has no easily
  * searchable attributes or name. I also can't guarantee it appears consistently in the same
@@ -14,23 +15,34 @@ const utils = require(path.join(__dirname + '/utils.js'));
  * @returns {null}  null no return object 
  */
 exports.parse = function(recipe) {
-    const print = utils.printInfo;
-    const findAttribute = utils.findAttribute;
-    const findHtmlElement = utils.findHtmlElement;
-
     if (!recipe.dom) throw "Error: DOM property undefined.";
     else {
         let _content = findAttribute('class', 'recipe-content', recipe.dom)[0];
-        recipe.name;
-        recipe.author;
+        let _meta = findHtmlElement(['name', 'meta'], recipe.dom, true, Infinity);
+        recipe.name = _getTitle(recipe.dom);
+        recipe.author = findAttribute('itemprop', 'author', recipe.dom)[0].attribs.content;
         recipe.yield = findAttribute('itemprop', 'recipeYield', _content)[0].children[0].data;
-        recipe.description;
-        recipe.ingredients = _getIngredients(_content[0]); 
+        recipe.description = _getDescription(_meta);
+        recipe.ingredients = _getIngredients(_content); 
         recipe.steps;
-        console.log(recipe.yield);
+        console.log(recipe.description);
     }
 }
 
+function _getTitle(node) {
+    let _title = findHtmlElement(['name', 'title'], node, true, 1)[0].children[0].data;
+    let _a = ['|', 'Epicurious.com', 'recipe'];
+    return _title.split(/\s+/).filter(_w => !_a.includes(_w)).join(' ');
+}
+
+function _getDescription(node) {
+    printInfo(node[0]);
+}
+
 function _getIngredients(node) {
-    
+    let _a = findAttribute('itemprop', 'ingredients', node);
+    return _a
+        .map(_i => _i.children[0].data)
+        .map(_i => utils.convertFractions(_i))
+        .map(_i => utils.extractUnit(_i));
 }

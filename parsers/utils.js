@@ -1,3 +1,6 @@
+const path = require ('path');
+const Values = require(path.join(__dirname + '/values.js'));
+
 function findAttribute(key, value, node) {
     let _k = key;
     let _v = value;
@@ -64,6 +67,41 @@ function findHtmlElement(searchProp, node, recurse, limit) {
     return _result;
 }
 exports.findHtmlElement = findHtmlElement;
+
+
+
+function convertFractions(_i) {
+    // TODO:  convert fractions without a space between, e.g. "1½ as opposed to "1 ½"
+    // extract quantity; i'm sure there's a pithy one-liner that could do this, oh well
+    let _a = _i.split(/\s+/);
+    let _b = {}
+    if (!isNaN(_a[0]) || Values.Fractions[_a[0]]) {
+        _b.quantity = _a.shift();
+    }
+    // convert fraction symbols to integer n/n
+    if (Values.Fractions[_b.quantity]) {
+        _b.quantity = Values.Fractions[_b.quantity];
+    }
+    _b.name = _a.join(' ');
+    return _b;
+}
+exports.convertFractions = convertFractions;
+
+
+
+function extractUnit(_i) {
+    // extract unit of measurement. the slice is to account for plural 's', e.g. teaspoons
+    let _a = _i.name.split(/\s+/);
+    let _u = _a.shift().toString().toLowerCase();
+    if (Values.Units.includes(_u) || Values.Units.includes(_u.slice(0, -1))) {
+        _i.unit = _u;
+        _i.name = _a.join(' ');
+    }
+    return _i;
+}
+exports.extractUnit = extractUnit;
+
+
 
 /**
  * For development/debugging.
