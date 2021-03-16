@@ -25,7 +25,6 @@ exports.parse = function(recipe) {
         recipe.description = _getDescription(_meta);
         recipe.ingredients = _getIngredients(_content); 
         recipe.steps;
-        console.log(recipe.description);
     }
 }
 
@@ -36,7 +35,8 @@ function _getTitle(node) {
 }
 
 function _getDescription(node) {
-    printInfo(node[0]);
+    let _m = findAttribute('property', 'og:description', node);
+    console.log(_m);
 }
 
 function _getIngredients(node) {
