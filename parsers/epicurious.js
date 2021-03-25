@@ -5,6 +5,7 @@ const utils = require(path.join(__dirname + '/utils.js'));
 const print = utils.printInfo;
 const findAttribute = utils.findAttribute;
 const findHtmlElement = utils.findHtmlElement;
+
 /**
  * Epicurious contains a data object that contains all the information but has no easily
  * searchable attributes or name. I also can't guarantee it appears consistently in the same
