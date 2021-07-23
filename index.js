@@ -18,7 +18,8 @@ const R = { /* This is the main recipe object */ };
 var parser = { /* This is the parser used for extracting the recipe information from raw HTML */ };
 const parsers = {
     // add new parsers here. make sure the key is exactly as it appears in the URL of the recipe
-    allrecipes: require(path.join(__dirname + '/parsers/allRecipes.js'))
+    allrecipes: require(path.join(__dirname + '/parsers/allRecipes.js')),
+    epicurious: require(path.join(__dirname + '/parsers/epicurious.js'))
 };
 
 /*
