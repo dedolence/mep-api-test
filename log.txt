@@ -16,3 +16,6 @@ the tags i'm looking for, why not just hunt for those during the parsing, instea
     ok but there's definitely a JSON object in the <head> that contains every bit of information i need, would
     require almost no parsing whatsoever, just JSON.parse()... what the fuck how am i just now realizing this.
     whatever.
+
+7/22/2021
+    getting back into this. committed everything to main branch. this is a test to see that it merged correctly (i'm still a little unsteady on git).

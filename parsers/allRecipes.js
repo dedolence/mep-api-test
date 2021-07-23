@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /* take a JSDOM object and return a JSON object containing only the relevant items
  *   {
  *       'name': 'string',
@@ -11,18 +10,6 @@
  *   }
  */
 
-=======
-const path = require('path');
-const htmlparser2 = require('htmlparser2');
-const Values = require(path.join(__dirname + '/values.js'));
-const utils = require(path.join(__dirname + '/utils.js'));
-
-/**
- * 
- * @param {HTMLElement} recipe object created by HTMLParser2
- * @returns {null}  null no return object 
- */
->>>>>>> use-seo
 exports.parse = function(recipe) {
     if (!recipe.dom) throw "Error: DOM property undefined.";
     else {
