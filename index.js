@@ -89,7 +89,9 @@ app.use('/api', function(req, res, next) {
 
 // parse the raw HTML
 app.use('/api', function(req, res, next) {
-    // log the html
+    // parse into object containing entire DOM structure
+    R.dom = htmlparser2.parseDocument(R.html);
+    // parse into usable information
     R.parser.parse(R);
     res.end();
 })

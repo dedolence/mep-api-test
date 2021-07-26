@@ -5,6 +5,7 @@ const utils = require(path.join(__dirname + '/utils.js'));
 const print = utils.printInfo;
 const findAttribute = utils.findAttribute;
 const findHtmlElement = utils.findHtmlElement;
+const findAttr = utils.findAttr;
 
 /**
  * Epicurious contains a data object that contains all the information but has no easily
@@ -23,9 +24,19 @@ exports.parse = function(recipe) {
         recipe.name = _getTitle(recipe.dom);
         recipe.author = findAttribute('itemprop', 'author', recipe.dom)[0].attribs.content;
         recipe.yield = findAttribute('itemprop', 'recipeYield', _content)[0].children[0].data;
-        recipe.description = _getDescription(_meta);
+        recipe.description = _getDescription(recipe.dom);
         recipe.ingredients = _getIngredients(_content); 
         recipe.steps;
+
+        /*
+        console.log("Name: " + recipe.name);
+        console.log("Author: " + recipe.author);
+        console.log("Yield: " + recipe.yield);
+        console.log("Description:");
+        console.log("Ingredients: " + recipe.ingredients);
+        console.log("Steps: " + recipe.steps);
+        */
+
     }
 }
 
@@ -36,8 +47,32 @@ function _getTitle(node) {
 }
 
 function _getDescription(node) {
-    let _m = findAttribute('property', 'og:description', node);
-    console.log(_m);
+    let n = findAttribute('itemprop', 'description', node)[0];
+    console.log(n.type);
+    console.log(n.children.length);
+    console.log(n.name);
+    console.log("Children:")
+    for (let i = 0; i < n.children.length; i++) {
+        if (n.children[i].name == 'p') {
+            console.log(n.children[i].children);
+        }
+    }
+    /*
+    let n = findAttribute('itemprop', 'description', node)[0].children
+    for (let i = 0; i < n.length; i++) {
+        console.log("----------------------------------");
+        console.log("Type: " + n[i].type);
+        console.log("Name: " + n[i].name);
+        console.log("Attribs: " + n[i].attribs);
+        if (n[i].type === 'tag' && n[i].name === 'p'&& n[i].children) {
+            for (let j = 0; j < n[i].children.length; j++) {
+                console.log("---------");
+                console.log(n[i].children[j].type);
+                console.log(n[i].children[j].data);
+            }
+        }
+    }
+    */
 }
 
 function _getIngredients(node) {

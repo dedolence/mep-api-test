@@ -26,6 +26,30 @@ function findAttribute(key, value, node) {
 }
 exports.findAttribute = findAttribute;
 
+function findAttr(key, node) {
+    let _k = key;
+    let _n = node;
+    let _results = [];
+
+    if (_n.attribs) {
+        for (_a in _n.attribs) {
+            if (_a == _k) {
+                _results.push(_n);
+            }
+        }
+    }
+
+    if (_n.children) {
+        for (let _i = 0; _i < _n.children.length; _i++) {
+            let _c = findAttr(_k, _n.children[_i]);
+            _results.push.apply(_results, _c);
+        }
+    }
+
+    return _results;
+}
+exports.findAttr = findAttr;
+
 
 /** 
  * rewrote the DomUtils find() function to handle searching objects,
